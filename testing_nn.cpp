@@ -146,34 +146,74 @@ double sigmoid(double x) {
 // | Forward process - Perceptron |
 // +------------------------------+
 
-void perceptron() {
-    for (int i = 1; i <= n2; ++i) {
+void	perceptron() 
+{
+
+/*
+	for(int i = 1; i <= n2; ++i)
+	{
 		in2[i] = 0.0;
 	}
 
-    for (int i = 1; i <= n3; ++i) {
+	for(int i = 1; i <= n3; ++i)
+	{
 		in3[i] = 0.0;
 	}
+*/
 
+	double parIn2[8][16];
+
+	for(int tIdx=0; tIdx<8; tIdx++)
+		for(int i=0; i<16; i++)
+		{
+			parIn2[tIdx][i] = 0.0;
+
+			for(int j=0; j<n1; j++)
+				parIn2[tIdx][i] += out1[j+1] * w1[j+1][(16*tIdx)+i+1];
+		}
+
+/*
     for (int i = 1; i <= n1; ++i) {
         for (int j = 1; j <= n2; ++j) {
             in2[j] += out1[i] * w1[i][j];
 		}
 	}
+*/
 
+	for(int tIdx=0; tIdx<8; tIdx++)
+		for(int i=0; i<16; i++)
+			out2[(16*tIdx)+i+1] = sigmoid(parIn2[tIdx][i]);
+
+/*
     for (int i = 1; i <= n2; ++i) {
 		out2[i] = sigmoid(in2[i]);
 	}
+*/
 
+	for(int j=0; j<n3; j++)
+	{
+		in3[j+1] = 0.0;
+
+		for(int i=0; i<n2; i++)
+			in3[j+1] += out2[i+1] * w2[i+1][j+1];
+	}
+
+/*
     for (int i = 1; i <= n2; ++i) {
         for (int j = 1; j <= n3; ++j) {
             in3[j] += out2[i] * w2[i][j];
 		}
 	}
+*/
 
+	for(int i=0; i<n3; i++)
+		out3[i+1] = sigmoid(in3[i+1]);
+
+/*
     for (int i = 1; i <= n3; ++i) {
 		out3[i] = sigmoid(in3[i]);
 	}
+*/
 }
 
 // +---------------+
