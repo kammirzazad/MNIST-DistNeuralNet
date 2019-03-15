@@ -170,6 +170,8 @@ void	perceptron()
 
 			for(int j=0; j<n1; j++)
 				parIn2[tIdx][i] += out1[j+1] * w1[j+1][(16*tIdx)+i+1];
+
+			parIn2[tIdx][i] = sigmoid(parIn2[tIdx][i]);
 		}
 
 /*
@@ -179,10 +181,6 @@ void	perceptron()
 		}
 	}
 */
-
-	for(int tIdx=0; tIdx<8; tIdx++)
-		for(int i=0; i<16; i++)
-			out2[(16*tIdx)+i+1] = sigmoid(parIn2[tIdx][i]);
 
 /*
     for (int i = 1; i <= n2; ++i) {
@@ -194,8 +192,15 @@ void	perceptron()
 	{
 		in3[j+1] = 0.0;
 
-		for(int i=0; i<n2; i++)
-			in3[j+1] += out2[i+1] * w2[i+1][j+1];
+		// break n2 (128) to 16*8
+		for(int tIdx=0; tIdx<8; tIdx++)
+			for(int i=0; i<16; i++)
+			{
+				int k = (16*tIdx)+i+1;
+				in3[j+1] += parIn2[tIdx][i] * w2[k][j+1];
+			}
+
+		out3[j+1] = sigmoid(in3[j+1]);
 	}
 
 /*
@@ -205,9 +210,6 @@ void	perceptron()
 		}
 	}
 */
-
-	for(int i=0; i<n3; i++)
-		out3[i+1] = sigmoid(in3[i+1]);
 
 /*
     for (int i = 1; i <= n3; ++i) {
