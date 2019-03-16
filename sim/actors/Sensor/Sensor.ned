@@ -13,16 +13,15 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package MNIST.actors.FCLayer1;
+package MNIST.actors.Sensor;
 
 import inet.applications.contract.IUDPApp;
 
-simple FCLayer1 like IUDPApp
+simple Sensor like IUDPApp
 {
     parameters:
-		int		id;
-		int		mem;
 		double	startTime;
+		string 	path_to_image;		
     
     gates:
         input	udpIn	@labels(UDPControlInfo/up);

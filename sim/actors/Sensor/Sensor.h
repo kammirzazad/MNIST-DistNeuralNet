@@ -13,18 +13,13 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package MNIST.actors.FCLayer1;
+#ifndef ACTORS_SENSOR_SENSOR_H_
+#define ACTORS_SENSOR_SENSOR_H_
 
-import inet.applications.contract.IUDPApp;
+class Sensor {
+public:
+    Sensor();
+    virtual ~Sensor();
+};
 
-simple FCLayer1 like IUDPApp
-{
-    parameters:
-		int		id;
-		int		mem;
-		double	startTime;
-    
-    gates:
-        input	udpIn	@labels(UDPControlInfo/up);
-        output	udpOut	@labels(UDPControlInfo/down);    
-}
+#endif /* ACTORS_SENSOR_SENSOR_H_ */

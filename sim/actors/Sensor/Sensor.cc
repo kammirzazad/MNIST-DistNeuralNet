@@ -13,18 +13,18 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package MNIST.actors.FCLayer1;
+#include "Sensor.h"
 
-import inet.applications.contract.IUDPApp;
+#include <inet/applications/base/ApplicationPacket_m.h>
 
-simple FCLayer1 like IUDPApp
-{
-    parameters:
-		int		id;
-		int		mem;
-		double	startTime;
-    
-    gates:
-        input	udpIn	@labels(UDPControlInfo/up);
-        output	udpOut	@labels(UDPControlInfo/down);    
+Define_Module(Sensor);
+
+Sensor::Sensor() {
+    // TODO Auto-generated constructor stub
+
 }
+
+Sensor::~Sensor() {
+    // TODO Auto-generated destructor stub
+}
+
