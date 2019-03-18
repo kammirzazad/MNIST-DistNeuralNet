@@ -19,7 +19,7 @@ class   netInfo
         static  inet::L3Address getIP(uint idx)
         {
                         std::string baseIP = "169.254.";
-                        uint idx = idx + 1; // cannot use "169.254.0.0"
+                        idx++; // cannot use "169.254.0.0"
                         baseIP += std::to_string(idx) + '.' + std::to_string(idx); // 169.254.idx.idx
                         return inet::L3Address(baseIP.c_str());
         }

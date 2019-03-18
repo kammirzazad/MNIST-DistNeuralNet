@@ -25,10 +25,18 @@ class INET_API FCLayer2 : public inet::ApplicationBase
     enum            SelfMsgKinds { POP=1, PUSH };
 
     int             mem;
-    str2            path_to_label;
     double          ts;
+    double          *w2[N2 + 1];
+    double          *in3, *out3;
+    double          expected[N3 + 1];
     arr<sock*>      inSockets;
+    std::ifstream   label;
+    std::ofstream   report;
     arr<udpBuffer*> buffers;
+
+    void            sendVal();
+    void            setOutVal();
+    void            loadWeights(str2 path_to_model);
 
 
     protected:

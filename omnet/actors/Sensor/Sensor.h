@@ -24,9 +24,11 @@ class INET_API Sensor : public inet::ApplicationBase
 
     enum            SelfMsgKinds { POP=1, PUSH };
 
-    str2            path_to_image;
+    int             d[IN_WIDTH + 1][IN_WIDTH + 1];
     double          ts;
+    double          *out1;
     arr<sock>       outSockets;
+    std::ifstream   image;
 
     void            sendVal();
     void            setOutVal();

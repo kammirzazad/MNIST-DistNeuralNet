@@ -11,21 +11,16 @@
 // 
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/.
-// 
+//
 
-package MNIST.actors.FCLayer1;
+cplusplus{{
+	#include "actors/include/token.h"
+}}
 
-import inet.applications.contract.IUDPApp;
+struct	nnData;
 
-simple FCLayer1 like IUDPApp
+packet	nnPacket
 {
-    parameters:
-		int		id;
-		int		mem;
-		double	startTime;
-		string	path_to_model;
-    
-    gates:
-        input	udpIn	@labels(UDPControlInfo/up);
-        output	udpOut	@labels(UDPControlInfo/down);    
+ 		long	sequenceNumber;
+ 		nnData	payload;   
 }

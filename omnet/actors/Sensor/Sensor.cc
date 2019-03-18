@@ -26,7 +26,32 @@ void    Sensor::sendVal()
 
 void    Sensor::setOutVal()
 {
+        char number;
+        for (int j = 1; j <= IN_WIDTH; ++j)
+        {
+            for (int i = 1; i <= IN_WIDTH; ++i)
+            {
+                image.read(&number, sizeof(char));
 
+                if (number == 0)
+                {
+                    d[i][j] = 0;
+                }
+                else
+                {
+                    d[i][j] = 1;
+                }
+            }
+        }
+
+        for (int j = 1; j <= IN_WIDTH; ++j)
+        {
+            for (int i = 1; i <= IN_WIDTH; ++i)
+            {
+                int pos = i + (j - 1) * IN_WIDTH;
+                out1[pos] = d[i][j];
+            }
+        }
 }
 
 void    Sensor::initialize(int stage)
@@ -36,6 +61,13 @@ void    Sensor::initialize(int stage)
         if(stage == inet::INITSTAGE_LOCAL)
         {
             ts = par("startTime");
+            str2 path2image = par("path_to_image");
+            image.open(path2image.c_str(), ios::in | ios::binary); // Binary image file
+
+            // Reading file headers
+            char number;
+            for (int i = 1; i <= 16; ++i)
+                image.read(&number, sizeof(char));
 
             for(uint i=0; i<8; i++)
             {
@@ -64,11 +96,15 @@ Sensor::~Sensor()
         if(selfMsg) { cancelEvent(selfMsg); }
 
         delete  selfMsg;
+
+        image.close();
 }
 
 Sensor::Sensor()
 :   ts(0.0)
-{}
+{
+        out1 = new double [N1 + 1];
+}
 
 void    Sensor::handleNodeCrash()
 {

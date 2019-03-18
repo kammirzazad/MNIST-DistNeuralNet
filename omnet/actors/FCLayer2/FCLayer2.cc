@@ -19,6 +19,30 @@
 Define_Module(FCLayer2);
 
 
+void    FCLayer2::setOutVal()
+{
+        for(uint id=0; id<8; id++)
+            buffers[id]->waitForToken(1);
+
+        for(int j=0; j<N3; j++)
+        {
+            in3[j+1] = 0.0;
+
+            // break n2 (128) to 16*8
+            for(uint id=0; id<8; id++)
+            {
+                auto parIn2 = buffers[id]->readToken(0).getData();
+
+                for(int i=0; i<16; i++)
+                {
+                    in3[j+1] += parIn2.array[i] * w2[(16*id)+i+1][j+1];
+                }
+            }
+
+            out3[j+1] = sigmoid(in3[j+1]);
+        }
+}
+
 void    FCLayer2::handleMessageWhenUp(cMessage* msg)
 {
         if(msg->isSelfMessage())
@@ -77,6 +101,18 @@ void    FCLayer2::initialize(int stage)
         if(stage == inet::INITSTAGE_LOCAL)
         {
             ts = par("startTime");
+            loadWeights(par("path_to_model"));
+
+            str2 path2label = par("path_to_label");
+            str2 path2report = par("path_to_report");
+
+            report.open(path2report.c_str(), ios::out);
+            label.open(path2label.c_str(), ios::in | ios::binary ); // Binary label file
+
+            // Reading file headers
+            char number;
+            for (int i = 1; i <= 8; ++i)
+                label.read(&number, sizeof(char));
 
             for(uint i=0; i<8; i++)
             {
@@ -109,11 +145,22 @@ FCLayer2::~FCLayer2()
         for(udpBuffer* buff:buffers) delete buff;
 
         delete  selfMsg;
+
+        label.close();
+        report.close();
 }
 
 FCLayer2::FCLayer2()
 :   mem(1), ts(0.0)
-{}
+{
+        for (int i = 1; i <= N2; ++i)
+        {
+            w2[i] = new double [N3 + 1];
+        }
+
+        in3 = new double [N3 + 1];
+        out3 = new double [N3 + 1];
+}
 
 void    FCLayer2::handleNodeCrash()
 {
@@ -131,3 +178,28 @@ double  FCLayer2::sigmoid(double x)
         return 1.0 / (1.0 + exp(-x));
 }
 
+void    FCLayer2::loadWeights(str2 file_name)
+{
+        double temp;
+        std::ifstream file(file_name.c_str(), ios::in);
+
+        // Input layer - Hidden layer
+        for (int i = 1; i <= N1; ++i)
+        {
+            for (int j = 1; j <= N2; ++j)
+            {
+                file >> temp; //w1[i][j];
+            }
+        }
+
+        // Hidden layer - Output layer
+        for (int i = 1; i <= N2; ++i)
+        {
+            for (int j = 1; j <= N3; ++j)
+            {
+                file >> w2[i][j];
+            }
+        }
+
+        file.close();
+}

@@ -2,7 +2,7 @@
 #define MNIST_UDP_BUFFER_H
 
 #include "circBuff.h"
-#include <inet/applications/base/ApplicationPacket_m.h>
+#include "../../nnPacket_m.h"
 
 //#define DEBUG_TOKEN_DROP
 
@@ -29,17 +29,17 @@ class   udpBuffer
 
         void        addToken(cPacket* msg)
         {
-                    inet::ApplicationPacket* aMsg = check_and_cast<inet::ApplicationPacket*> (msg);
+                    nnPacket* aMsg = check_and_cast<nnPacket*> (msg);
 
-                    double data = (double) aMsg->par("data");
                     uint seqN = aMsg->getSequenceNumber();
+                    nnData data = aMsg->getPayload();
 
                     placeToken(seqN, data);
         }
 
         private:
 
-        void        placeToken(uint seqNum, double data)
+        void        placeToken(uint seqNum, nnData data)
         {
                     if( seqNum >= maxSeqN )
                     {
@@ -57,7 +57,7 @@ class   udpBuffer
                     #endif
         }
 
-        void        pushToken(uint seqNum, double data)
+        void        pushToken(uint seqNum, nnData data)
         {
                     while(true)
                     {
@@ -87,7 +87,7 @@ class   udpBuffer
                     }
         }
 
-        void        updateToken(uint seqNum, double data)
+        void        updateToken(uint seqNum, nnData data)
         {
                     assert(!buffer.isEmpty());
 

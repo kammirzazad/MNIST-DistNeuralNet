@@ -18,9 +18,6 @@
 
 #include "../include/typedefs.h"
 
-#define IN_WIDTH    28
-#define TILE_WIDTH  4
-#define N1          IN_WIDTH*IN_WIDTH
 
 class INET_API FCLayer1 : public inet::ApplicationBase
 {
@@ -29,16 +26,17 @@ class INET_API FCLayer1 : public inet::ApplicationBase
     enum            SelfMsgKinds { POP=1, PUSH };
 
     uint            id, iterCnt;
-    sock*           inSock, outSock;
+    sock            *inSock, *outSock;
     nnData          partialIn2;
     double          ts;
     double          out1[N1];
-    netInfo*        inInfo, outInfo;
     cMessage*       selfMsg;
     udpBuffer*      buffer;
+    double          *w1[N1 + 1];        // From layer 1 to layer 2. Or: Input layer - Hidden layer
 
     void            sendVal();
     void            setOutVal();
+    void            loadWeights(str2 path_to_model);
     double          sigmoid(double x);
 
     protected:

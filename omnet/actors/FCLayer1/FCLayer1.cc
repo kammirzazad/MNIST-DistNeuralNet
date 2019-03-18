@@ -18,7 +18,7 @@
 #include <cmath>
 #include <cctype>
 #include <fstream>
-#include <inet/applications/base/ApplicationPacket_m.h>
+#include "nnPacket_m.h"
 
 Define_Module(FCLayer1);
 
@@ -34,10 +34,10 @@ void    FCLayer1::setOutVal()
             uint tileY = row/TILE_WIDTH;    // [0,7]
             uint offsetX = col%TILE_WIDTH;  // [0,3]
             uint offsetY = row%TILE_WIDTH;  // [0,3]
-            uint tileIdx = (IN_WIDTH*y)+x;  // [0,48]: send tiles in row first manner
+            uint tileIdx = (IN_WIDTH*tileY)+tileX;  // [0,48]: send tiles in row first manner
             uint offset = (TILE_WIDTH*offsetY) + offsetX;
 
-            token& tile = buffer.readToken(tileIdx);
+            token& tile = buffer->readToken(tileIdx);
 
             if( tile.isEmpty() )
             {
@@ -59,7 +59,7 @@ void    FCLayer1::setOutVal()
             partialIn2.array[i] = sigmoid(partialIn2.array[i]);
         }
 
-        buffer.popToken(IN_WIDTH*IN_WIDTH);
+        buffer->popToken(IN_WIDTH*IN_WIDTH);
 
         selfMsg->setKind(PUSH);
         scheduleAt(simTime()+0.005, selfMsg);
@@ -67,10 +67,10 @@ void    FCLayer1::setOutVal()
 
 void    FCLayer1::sendVal()
 {
-        inet::ApplicationPacket *msg = new inet::ApplicationPacket("token");
+        nnPacket *msg = new nnPacket("token");
         msg->setByteLength(sizeof(partialIn2)+sizeof(uint));
         msg->setSequenceNumber(iterCnt);
-        msg->addData(partialIn2);
+        msg->setPayload(partialIn2);
         outSock->send(msg);
 
         iterCnt++;
@@ -101,7 +101,7 @@ void    FCLayer1::handleMessageWhenUp(cMessage* msg)
         }
         else if( msg->getKind() == inet::UDP_I_DATA)
         {
-            auto ctrl = chck_and_cast<inet::UDPDataIndication*>(msg->removeControlInfo());
+            auto ctrl = check_and_cast<inet::UDPDataIndication*>(msg->removeControlInfo());
             if(ctrl->getSrcAddr() != netInfo::getIP(0)) // h0 hosts input
             {
                 std::cout << "Received data from unexpected IP address" << std::endl;
@@ -136,12 +136,15 @@ void    FCLayer1::initialize(int stage)
             ts = par("startTime");
             inSock = new sock();
             outSock = new sock();
-            buffer = new udpBuffer(49*par("mem"));          // 28*28 = 16*49
+            int mem = par("mem");
+            buffer = new udpBuffer(49*mem);                 // 28*28 = 16*49
             selfMsg = new cMessage("scheduler");
             inSock->setOutputGate(gate("udpOut"));
             outSock->setOutputGate(gate("udpOut"));
             inSock->bind(netInfo::getIP(id+1),10000+id);    // id:0=>(h1,10000), id:1=>(h2,10001), ...
             outSock->connect(netInfo::getIP(9),10010+id);   // h9 hosts FC2
+
+            loadWeights(par("path_to_model"));
         }
 }
 
@@ -166,7 +169,13 @@ FCLayer1::~FCLayer1()
 
 FCLayer1::FCLayer1()
 :   id(0), iterCnt(0), ts(0.0)
-{}
+{
+        for (int i = 1; i <= N1; ++i)
+        {
+            w1[i] = new double [N2 + 1];
+        }
+
+}
 
 void    FCLayer1::handleNodeCrash()
 {
@@ -182,4 +191,30 @@ bool    FCLayer1::handleNodeShutdown(inet::IDoneCallback *doneCallBack)
 double  FCLayer1::sigmoid(double x)
 {
         return 1.0 / (1.0 + exp(-x));
+}
+
+void    FCLayer1::loadWeights(str2 file_name)
+{
+        double temp;
+        std::ifstream file(file_name.c_str(), ios::in);
+
+        // Input layer - Hidden layer
+        for (int i = 1; i <= N1; ++i)
+        {
+            for (int j = 1; j <= N2; ++j)
+            {
+                file >> w1[i][j];
+            }
+        }
+
+        // Hidden layer - Output layer
+        for (int i = 1; i <= N2; ++i)
+        {
+            for (int j = 1; j <= N3; ++j)
+            {
+                file >> temp; //w2[i][j];
+            }
+        }
+
+        file.close();
 }

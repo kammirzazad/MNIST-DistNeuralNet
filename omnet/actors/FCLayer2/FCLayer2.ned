@@ -22,7 +22,9 @@ simple FCLayer2 like IUDPApp
     parameters:
 		int		mem;
 		double	startTime;
-		string 	path_to_label;		
+		string 	path_to_label;
+		string	path_to_model;
+		string	path_to_report;		
     
     gates:
         input	udpIn	@labels(UDPControlInfo/up);

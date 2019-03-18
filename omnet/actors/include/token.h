@@ -18,7 +18,7 @@ class   token
                     return data;
         }
 
-        void        copy(double _data)
+        void        copy(nnData _data)
         {
                     assert(isEmpty());
 
@@ -36,7 +36,7 @@ class   token
                     #endif
         }
 
-        token(uint _seqN, double _data)
+        token(uint _seqN, nnData _data)
         : seqN(_seqN), isRead(false), isInitialized(true), data(_data)
         {}
 
