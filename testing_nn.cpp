@@ -146,6 +146,47 @@ double sigmoid(double x) {
 // | Forward process - Perceptron |
 // +------------------------------+
 
+void	printAvgW1()
+{
+	std::cout << "FCLayer1 weights:" << std::endl;
+
+	for(int tIdx=0; tIdx<8; tIdx++)
+	{
+		int	count = 0;
+		double	totalWeight = 0.0;
+
+		for(int i=0; i<16; i++)	
+			for(int j=0; j<n1; j++)
+			{
+				count++;
+				totalWeight += w1[j+1][(16*tIdx)+i+1];	
+			}
+
+		std::cout << "tile " << tIdx << ": " << totalWeight << std::endl;
+	}
+}
+
+void	printAvgW2()
+{
+	std::cout << "FCLayer2 weights:" << std::endl;
+
+	for(int tIdx=0; tIdx<8; tIdx++)
+	{
+		int	count = 0;
+		double	totalWeight = 0.0;
+
+		for(int j=0; j<n3; j++)
+			for(int i=0; i<16; i++)
+			{
+				int k = (16*tIdx)+i+1;
+				count++;
+				totalWeight += w2[k][j+1];
+			}
+
+		std::cout << "tile " << tIdx << ": " << totalWeight << std::endl;
+	}
+}
+
 void	perceptron() 
 {
 
@@ -289,6 +330,9 @@ int main(int argc, char *argv[]) {
 	// Neural Network Initialization
     init_array(); // Memory allocation
     load_model(model_fn); // Load model (weight matrices) of a trained Neural Network
+
+	printAvgW1();
+	printAvgW2();
     
     int nCorrect = 0;
     for (int sample = 1; sample <= nTesting; ++sample) {
